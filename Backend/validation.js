@@ -4,24 +4,24 @@ const Joi = require('joi');
 const customerSignupSchema = Joi.object({
     name: Joi.string().min(1).max(30).required(),
     surname: Joi.string().min(1).max(30).required(),
-    idNumber: Joi.string().regex(/^\d+$/).length(13).required(),
+    idNumber: Joi.string().regex(/^\d+$/).min(10).max(14).required(),
     accountNumber: Joi.string().regex(/^\d+$/).min(8).max(12).required(),
     password: Joi.string().min(8).required()
 });
 
 const customerLoginSchema = Joi.object({
     fullName: Joi.string().min(3).required(),
-    accountNumber: Joi.string().regex(/^\d+$/).min(8).max(12).required(),
+    accountNumber: Joi.string().regex(/^\d+$/).min(8).max(14).required(),
     password: Joi.string().min(8).required()
 });
 
 const paymentSchema = Joi.object({
     fullName: Joi.string().min(3).required(),
-    idNumber: Joi.string().regex(/^\d+$/).length(13).required(),
-    accountNumber: Joi.string().regex(/^\d+$/).min(8).max(12).required(),
-    swiftCode: Joi.string().alphanum().length(8).required(),
+    idNumber: Joi.string().regex(/^\d+$/).min(10).max(14).required(),
+    accountNumber: Joi.string().regex(/^\d+$/).min(8).max(14).required(),
+    swiftCode: Joi.string().alphanum().min(8).max(12).required(),
     paymentAmount: Joi.number().greater(0).required(),
-    currency: Joi.string().length(3).required(),
+    currency: Joi.string().min(2).required(),
     provider: Joi.string().min(3).required()
 });
 
@@ -31,9 +31,10 @@ const employeeSignupSchema = Joi.object({
 });
 
 const employeeLoginSchema = Joi.object({
-    username: Joi.string().alphanum().min(3).max(30).required(),
+    username: Joi.string().regex(/^[a-zA-Z0-9_]+$/).min(3).max(30).required(),
     password: Joi.string().min(8).required()
 });
+
 
 // Middleware to validate request body against a provided schema
 const validateInput = (schema) => {

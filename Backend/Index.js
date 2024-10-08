@@ -178,4 +178,154 @@ app.post('/employee/login', validateInput(employeeLoginSchema), async (req, res)
     }
 });
 
+//Employee functions
+// Get Payments 
+app.get('/payments', async (req, res) => {
+    try {
+        const paymentsCollection = db.collection('payments');
+        // Fetch all payments from the collection
+        const payments = await paymentsCollection.find({}).toArray();
+
+        // Check if there are no payments
+        if (payments.length === 0) {
+            return res.status(404).json({ message: 'No payments found' });
+        }
+
+        res.status(200).json({
+            message: 'Payments retrieved successfully',
+            data: payments
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Verify Payment
+// Update Payment Endpoint
+app.patch('/payments/:id', async (req, res) => {
+    try {
+        const paymentID = req.params.id;
+        const { fullName, idNumber, accountNumber, swiftCode, paymentAmount, currency, provider } = req.body;
+
+        
+        const updateData = {
+            status: 'Verified', // Set status to Verified
+        };
+
+        
+        if (fullName) updateData.fullName = fullName;
+        if (idNumber) updateData.idNumber = idNumber;
+        if (accountNumber) updateData.accountNumber = accountNumber;
+        if (swiftCode) updateData.swiftCode = swiftCode;
+        if (paymentAmount) updateData.paymentAmount = paymentAmount;
+        if (currency) updateData.currency = currency;
+        if (provider) updateData.provider = provider;
+
+        const paymentsCollection = db.collection('payments');
+        // Update the payment in the database
+        const result = await paymentsCollection.updateOne(
+            { _id: new ObjectId(paymentID) },
+            { $set: updateData }
+        );
+
+        // Check if a payment was updated
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ message: 'Payment not found' });
+        }
+
+        // Fetch the updated payment details
+        const updatedPayment = await paymentsCollection.findOne({ _id: new ObjectId(paymentID) });
+
+        res.status(200).json({
+            message: 'Payment details updated successfully',
+            data: updatedPayment
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+//Verify Payment
+app.patch('/payments/verify/:id', async (req, res) => {
+    try {
+        const paymentID = req.params.id;
+        const { fullName, idNumber, accountNumber, swiftCode, paymentAmount, currency, provider } = req.body;
+
+        
+        const updateData = {
+            status: 'Verified', // Set status to Verified
+        };
+
+        
+        if (fullName) updateData.fullName = fullName;
+        if (idNumber) updateData.idNumber = idNumber;
+        if (accountNumber) updateData.accountNumber = accountNumber;
+        if (swiftCode) updateData.swiftCode = swiftCode;
+        if (paymentAmount) updateData.paymentAmount = paymentAmount;
+        if (currency) updateData.currency = currency;
+        if (provider) updateData.provider = provider;
+
+        const paymentsCollection = db.collection('payments');
+        // Update the payment in the database
+        const result = await paymentsCollection.updateOne(
+            { _id: new ObjectId(paymentID) },
+            { $set: updateData }
+        );
+
+        // Check if a payment was updated
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ message: 'Payment not found' });
+        }
+
+        // Fetch the updated payment details
+        const updatedPayment = await paymentsCollection.findOne({ _id: new ObjectId(paymentID) });
+
+        res.status(200).json({
+            message: 'Payment details updated successfully',
+            data: updatedPayment
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Deny Payment 
+app.patch('/payments/deny/:id', async (req, res) => {
+    try {
+        const paymentID = req.params.id;
+
+        // Update the status to "Denied"
+        const updateData = {
+            status: 'Denied', // Set status to Denied
+        };
+
+        const paymentsCollection = db.collection('payments');
+        // Update the payment status in the database
+        const result = await paymentsCollection.updateOne(
+            { _id: new ObjectId(paymentID) },
+            { $set: updateData }
+        );
+
+        // Check if a payment was updated
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ message: 'Payment not found' });
+        }
+
+        // Fetch the updated payment details
+        const updatedPayment = await paymentsCollection.findOne({ _id: new ObjectId(paymentID) });
+
+        res.status(200).json({
+            message: 'Payment status updated to Denied successfully',
+            data: updatedPayment
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
 module.exports = app;
