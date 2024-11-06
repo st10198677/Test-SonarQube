@@ -13,10 +13,10 @@ jobs:
   sonarqube:
     working_directory: ~/build
     docker:
-      - image: sonarsource/sonar-scanner-cli:latest  # Use the official SonarQube scanner image
+      - image: sonarsource/sonar-scanner-cli:latest  # Use SonarQube's official scanner image
     resource_class: small
     steps:
-      - checkout  # Checkout code at the start of the job
+      - checkout  # Ensure code is checked out at the start
       - attach_workspace:
           at: ~/workspace
       - run:
@@ -27,7 +27,7 @@ jobs:
             echo "Sonar branch value is: $SONAR_BRANCH"
             echo "Sonar organization value is: $SONAR_ORG"
             
-            # Run SonarQube scan with the specified properties
+            # Run SonarQube scan with exclusions for C/C++/Objective-C
             sonar-scanner \
               -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
               -Dsonar.organization="$SONAR_ORG" \
@@ -35,7 +35,10 @@ jobs:
               -Dsonar.exclusions="**/android/**,**/ios/**" \
               -Dsonar.login="$SONAR_TOKEN" \
               -Dsonar.branch.name="$SONAR_BRANCH" \
-              -Dsonar.sources="."
+              -Dsonar.sources="." \
+              -Dsonar.c.file.suffixes=- \
+              -Dsonar.cpp.file.suffixes=- \
+              -Dsonar.objc.file.suffixes=-
 
 workflows:
   say-hello-workflow:
