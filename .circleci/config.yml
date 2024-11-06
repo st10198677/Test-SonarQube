@@ -10,28 +10,33 @@ jobs:
           name: "Say hello"
           command: "echo Hello, World!"
 
-sonarqube:
+  sonarqube:
     working_directory: ~/build
     docker:
-      - image: sonarsource/sonar-scanner-cli:latest  # Using SonarQube's official scanner image
+      - image: sonarsource/sonar-scanner-cli:latest  # Use the official SonarQube scanner image
     resource_class: small
     steps:
-      - checkout  # Ensure code is checked out at the start
+      - checkout  # Checkout code at the start of the job
       - attach_workspace:
           at: ~/workspace
-      - run: |
-          # Run SonarQube scan
-          SONAR_BRANCH="${CIRCLE_BRANCH:-main}"
-          echo "Sonar branch value is: $SONAR_BRANCH"
-          echo "Sonar org value is: $SONAR_ORG"
-          sonar-scanner \
-            -D"sonar.projectKey=$SONAR_PROJECT_KEY" \
-            -D"sonar.organization=$SONAR_ORG" \
-            -D"sonar.host.url=https://sonarcloud.io" \
-            -D"sonar.exclusions=**/android/**,**/ios/**" \
-            -D"sonar.login=$SONAR_TOKEN" \
-            -D"sonar.branch.name=$SONAR_BRANCH" \
-            -D"sonar.sources=."
+      - run:
+          name: "Run SonarQube scan"
+          command: |
+            # Define the branch name, defaulting to 'main' if CIRCLE_BRANCH is not set
+            SONAR_BRANCH="${CIRCLE_BRANCH:-main}"
+            echo "Sonar branch value is: $SONAR_BRANCH"
+            echo "Sonar organization value is: $SONAR_ORG"
+            
+            # Run SonarQube scan with the specified properties
+            sonar-scanner \
+              -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
+              -Dsonar.organization="$SONAR_ORG" \
+              -Dsonar.host.url="https://sonarcloud.io" \
+              -Dsonar.exclusions="**/android/**,**/ios/**" \
+              -Dsonar.login="$SONAR_TOKEN" \
+              -Dsonar.branch.name="$SONAR_BRANCH" \
+              -Dsonar.sources="."
+
 workflows:
   say-hello-workflow:
     jobs:
