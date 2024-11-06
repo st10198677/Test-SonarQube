@@ -48,7 +48,8 @@ connectToDatabase();
 
 // Customer Functions
 // Signup Endpoint with validation middleware
-app.post('/signup', validateInput(customerSignupSchema), async (req, res) => {
+
+app.post('/signup',validateInput(customerSignupSchema), async (req, res) => {
     try {
         const { name, surname, idNumber, accountNumber, password } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -68,7 +69,7 @@ app.post('/signup', validateInput(customerSignupSchema), async (req, res) => {
             message: `Welcome ${userModel.fullName}`,
             data: {
                 userID,
-                fullName: userModel.fullName,
+                fullName: userModel.fullName ,
                 idNumber: userModel.idNumber,
                 accountNumber: userModel.accountNumber,
             }
