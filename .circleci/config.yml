@@ -13,7 +13,7 @@ jobs:
   sonarqube:
     working_directory: ~/build
     docker:
-      - image: alpine:latest  # Using Alpine-based image for apk commands
+      - image: alpine:3.17 # Using Alpine-based image for apk commands
     resource_class: small
     steps:
       - run: apk update
