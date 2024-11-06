@@ -10,7 +10,7 @@ jobs:
           name: "Say hello"
           command: "echo Hello, World!"
 
-  sonarqube:
+sonarqube:
     working_directory: ~/build
     docker:
       - image: sonarsource/sonar-scanner-cli:latest  # Using SonarQube's official scanner image
@@ -25,14 +25,13 @@ jobs:
           echo "Sonar branch value is: $SONAR_BRANCH"
           echo "Sonar org value is: $SONAR_ORG"
           sonar-scanner \
-            -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
-            -Dsonar.organization="$SONAR_ORG" \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.exclusions="**/android/**,**/ios/**" \
-            -Dsonar.login="$SONAR_TOKEN" \
-            -Dsonar.branch.name="$SONAR_BRANCH" \
-            -Dsonar.sources="."
-
+            -D"sonar.projectKey=$SONAR_PROJECT_KEY" \
+            -D"sonar.organization=$SONAR_ORG" \
+            -D"sonar.host.url=https://sonarcloud.io" \
+            -D"sonar.exclusions=**/android/**,**/ios/**" \
+            -D"sonar.login=$SONAR_TOKEN" \
+            -D"sonar.branch.name=$SONAR_BRANCH" \
+            -D"sonar.sources=."
 workflows:
   say-hello-workflow:
     jobs:
