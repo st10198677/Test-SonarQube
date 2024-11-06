@@ -1,48 +1,55 @@
 version: 2.1
 
-jobs:
-  say-hello:
+executors:
+  node-executor:
     docker:
-      - image: cimg/base:stable
+      - image: circleci/node:14
+
+jobs:
+  build:
+    executor: node-executor
+    steps:
+      - checkout
+      - run: npm install
+      - run: npm test
+
+  security_scan:
+    executor: node-executor
     steps:
       - checkout
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: Run Snyk Security Test
+          command: |
+            npm install -g snyk
+            snyk test
 
   sonarqube:
-    working_directory: ~/build
     docker:
-      - image: alpine:3.17 # Using Alpine-based image for apk commands
-    resource_class: small
+      - image: sonarsource/sonar-scanner-cli
     steps:
       - checkout
-      - run: apk update
-      - run: apk upgrade
-      - run: apk --no-cache add --update openssh git curl unzip openjdk11  # Installing Java and other dependencies
-      - run: |
-          # Download and install sonar-scanner
-          curl -L -o sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
-          unzip sonar-scanner-cli.zip -d /usr/local/
-          mv /usr/local/sonar-scanner-4.6.2.2472-linux /usr/local/sonar-scanner
-          export PATH=$PATH:/usr/local/sonar-scanner/bin
-      - run: find .  # Optional, can be removed if not needed
-      - run: |
-          # Run SonarQube scan
-          SONAR_BRANCH="${CIRCLE_BRANCH:-master}"
-          echo "Sonar branch value is: " $SONAR_BRANCH
-          echo "Sonar org value is : "$SONAR_ORG
-          sonar-scanner \
-            -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
-            -Dsonar.organization="$SONAR_ORG" \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.exclusions="**/android/**,**/ios/**" \
-            -Dsonar.login="$SONAR_TOKEN" \
-            -Dsonar.branch.name="$SONAR_BRANCH" \
-            -Dsonar.sources="."
+      - run: apk update && apk upgrade && apk --no-cache add --update openssh git curl
+      - run:
+          name: Run SonarQube Scanner
+          command: |
+            SONAR_BRANCH="${CIRCLE_BRANCH:-master}"
+            echo "Sonar branch value is: $SONAR_BRANCH"
+            sonar-scanner \
+              -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
+              -Dsonar.organization="$SONAR_ORG" \
+              -Dsonar.host.url=https://sonarcloud.io \
+              -Dsonar.exclusions="**/android/**,**/ios/**" \
+              -Dsonar.login="$SONAR_TOKEN" \
+              -Dsonar.branch.name="$SONAR_BRANCH" \
+              -Dsonar.sources="."
 
 workflows:
-  say-hello-workflow:
+  test_and_secure:
     jobs:
-      - say-hello
-      - sonarqube
+      - build
+      - security_scan:
+          requires:
+            - build
+      - sonarqube:
+          requires:
+            - build
