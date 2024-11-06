@@ -90,4 +90,5 @@ workflows:
             - build
 =======
       - say-hello
+      - sonarqube
 >>>>>>> origin/main
