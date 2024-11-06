@@ -10,9 +10,9 @@ jobs:
           name: "Say hello"
           command: "echo Hello, World!"
 
-    sonarqube:
+  sonarqube:
     working_directory: ~/build
-    docker:
+    docker:  # Define docker only once here
       - image: alpine:latest  # Using Alpine-based image for apk commands
     resource_class: small
     steps:
